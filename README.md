@@ -54,8 +54,6 @@ git clone https://github.com/DevManuelSereno/Polyglot.git
 cp -r Polyglot ~/.claude/skills/polyglot
 ```
 
-> **Note:** The repository was originally named `i18n-migrator` but was renamed to `polyglot` to reflect the skill's broader scope (create, migrate, refactor).
-
 Works with Claude Code, opencode, and any Agent Skills-compatible tool.
 
 ## Use
