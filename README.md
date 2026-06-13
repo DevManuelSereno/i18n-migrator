@@ -1,239 +1,185 @@
 # Polyglot
 
-> Internationalize your app. Create i18n from scratch or migrate hardcoded strings.
+> One skill for the entire i18n journey — from zero to fully localized.
 
-A Claude Code / opencode skill that handles the full i18n lifecycle — from initial setup to surgical string migration.
-
-## Why Use This?
-
-When you need to internationalize your app, you face two scenarios:
-
-1. **No i18n yet** — You need to set it up from scratch
-2. **i18n exists** — You need to migrate hardcoded strings
-
-Polyglot handles both. It detects your project's state and routes to the appropriate workflow.
-
-## Features
-
-- **Auto-detects** whether you need setup or migration
-- **Setup mode** — creates i18n from scratch with best practices
-- **Migrate mode** — surgical string migration with minimal diffs
-- **8+ libraries** — next-intl, react-i18next, vue-i18n, react-intl, i18next, angular, svelte, lingui
-- **Auto-validation** — hooks validate translation files automatically
-- **Confidence-based detection** — reports certainty levels for every detection
-
-## Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/DevManuelSereno/polyglot.git
-
-# Claude Code (personal)
-cp -r polyglot ~/.claude/skills/polyglot
-
-# Claude Code (project)
-cp -r polyglot /path/to/project/.claude/skills/polyglot
-
-# opencode
-cp -r polyglot /path/to/project/.opencode/skills/polyglot
+**Before:**
+```tsx
+// src/components/Settings.tsx — 47 hardcoded strings, 0 i18n
+export default function SettingsPage() {
+  return (
+    <div>
+      <h1>Settings</h1>
+      <p>Configure your preferences</p>
+      <label>Language</label>
+      <button>Save changes</button>
+    </div>
+  );
+}
 ```
 
-## Usage
+**After `/polyglot`:**
+```tsx
+// src/components/Settings.tsx — 0 hardcoded strings, fully localized
+import { useTranslations } from 'next-intl';
 
-### Auto-Detect Mode
+export default function SettingsPage() {
+  const t = useTranslations('settings');
+  return (
+    <div>
+      <h1>{t('header.title')}</h1>
+      <p>{t('header.subtitle')}</p>
+      <label>{t('form.languageLabel')}</label>
+      <button>{t('form.saveButton')}</button>
+    </div>
+  );
+}
+```
 
-Let Polyglot decide whether to setup or migrate:
+**Diff: 4 lines changed. Zero architecture touched. Zero refactors.**
+
+---
+
+Polyglot is a Claude Code / opencode skill that handles the full i18n lifecycle:
+
+- **No i18n yet?** → Sets it up from scratch (library, config, provider, translation files)
+- **i18n exists?** → Surgically migrates hardcoded strings with minimal diffs
+
+It auto-detects your project's state and routes to the right workflow. No manual configuration needed.
+
+## Install
 
 ```bash
+git clone https://github.com/DevManuelSereno/i18n-migrator.git
+cp -r i18n-migrator ~/.claude/skills/polyglot
+```
+
+Works with Claude Code, opencode, and any Agent Skills-compatible tool.
+
+## Use
+
+```bash
+# Auto-detect (recommended)
 /polyglot
-```
 
-### Explicit Mode
-
-Force a specific mode:
-
-```bash
-# Setup i18n from scratch
+# Force a mode
 /polyglot setup
-
-# Migrate strings in a specific file
-/polyglot migrate src/components/Settings.tsx
-
-# Migrate with reference file
-/polyglot migrate src/components/Settings.tsx src/components/Profile.tsx
+/polyglot migrate src/Settings.tsx src/Profile.tsx
 ```
 
-### Auto-Invoke
+Or just ask naturally: *"Add i18n to my app"* or *"Migrate strings in Settings.tsx"*
 
-Claude will invoke Polyglot automatically when you ask:
+## What it does
 
-```
-Add i18n to my app
-Setup internationalization
-Migrate strings in src/components/Settings.tsx
-```
+### Setup mode (no i18n yet)
+- Recommends library based on your framework
+- Installs dependencies
+- Creates config, translation files, provider
+- Adds example component
 
-## Workflow
+### Migrate mode (i18n exists)
+- Finds hardcoded strings (labels, placeholders, aria-labels, tooltips, buttons)
+- Replaces with `t()` calls following existing patterns
+- Updates translation files or outputs keys for remote storage
+- Validates automatically
 
-### Phase 1: Discover
+## What it does NOT do
 
-Detect your project's i18n state with confidence levels.
+- Translate your content (use Lokalise, Crowdin, DeepL)
+- Refactor existing i18n code
+- Change component architecture
+- Modify files outside the requested scope
+- Set up translation management workflows
 
-### Phase 2: Route
+## Supported libraries
 
-- **Has i18n?** → Migrate mode
-- **No i18n?** → Setup mode
+| Library | Framework |
+|---------|-----------|
+| next-intl | Next.js App Router |
+| react-i18next | React |
+| i18next | Universal |
+| react-intl | React |
+| vue-i18n | Vue |
+| @angular/localize | Angular |
+| svelte-i18n | Svelte |
+| lingui | React/Universal |
 
-### Phase 3A: Setup (if no i18n)
+## How it works
 
-1. Recommend library based on framework
-2. Install dependencies
-3. Create config files
-4. Create translation file structure
-5. Add provider to app root
-6. Create example translations
+1. **Discover** — detects your i18n stack with confidence levels (High/Medium/Low)
+2. **Route** — has i18n? → Migrate. No i18n? → Setup.
+3. **Execute** — follows the appropriate workflow
+4. **Validate** — auto-runs validation hook after every file change
+5. **Respond** — structured summary with files changed, keys added, validation status
 
-### Phase 3B: Migrate (if i18n exists)
+## Before/after examples
 
-1. Read reference + target + translation files
-2. Identify hardcoded strings
-3. Apply patterns (interpolation, pluralization, etc.)
-4. Update translation files
-5. Validate
+See [examples.md](examples.md) for concrete patterns across all libraries.
 
-### Phase 4: Validate
-
-Auto-run validation via hook. Fix any errors.
-
-### Phase 5: Respond
-
-Structured summary of changes.
-
-## What It Handles
-
-### Setup Mode
-
-- Library recommendation based on framework
-- Dependency installation
-- Config file creation
-- Translation file structure
-- Provider/wrapper setup
-- Example components
-
-### Migrate Mode
-
-- Simple strings (labels, buttons, titles)
-- String interpolation (`"Hello, {name}"`)
-- Pluralization (`"1 item"` / `"5 items"`)
-- Date/number/currency formatting
-- Rich text and inline components
-- JSX contexts (children, attributes, aria-labels)
-- Large modules (20+ strings — proposes batching)
-
-## What It Does NOT Do
-
-- Translate your content (use a translation service)
-- Manage translation workflows (use Lokalise, Crowdin, etc.)
-- Refactor existing i18n code (only migrates hardcoded strings)
-- Change component architecture (minimal diffs only)
-
-## Supported Libraries
-
-| Library | Framework | Status |
-|---------|-----------|--------|
-| next-intl | Next.js (App Router) | ✓ |
-| react-i18next | React | ✓ |
-| i18next | Universal | ✓ |
-| react-intl / FormatJS | React | ✓ |
-| vue-i18n | Vue | ✓ |
-| @angular/localize | Angular | ✓ |
-| svelte-i18n | Svelte | ✓ |
-| lingui | React/Universal | ✓ |
-
-## Project Structure
+## Project structure
 
 ```
 polyglot/
-├── SKILL.md              # Core instructions with routing logic
+├── SKILL.md              # Core routing + workflow (150 lines)
 ├── discovery.md          # Stack detection with confidence levels
-├── setup.md              # Scaffolding guide for each library
-├── patterns.md           # Interpolation, pluralization, formatting
-├── examples.md           # Quick reference patterns
+├── setup.md              # Opinionated scaffolding per library
+├── patterns.md           # Interpolation, pluralization, formatting + Bom/Ruim
+├── examples.md           # Before/after for every library
 ├── agents/
-│   └── i18n-analyzer.md  # Auto-invoked when detection fails
+│   └── i18n-analyzer.md  # Deep analysis subagent
 ├── scripts/
-│   └── validate-keys.js  # Validates translation files (auto-run via hook)
+│   └── validate-keys.js  # Auto-validates translation files
 ├── README.md
 └── LICENSE
 ```
 
-## Error Handling
+## Error handling
 
 | Scenario | Action |
 |----------|--------|
-| Detection fails | Auto-invoke `/i18n-analyzer` |
-| Pattern unclear | Ask before proceeding |
-| Validation fails | Fix errors, re-validate |
-| Reference missing | Detect from project files |
-| No i18n + user wants migrate | Suggest setup first |
+| Detection fails | Auto-invokes `/i18n-analyzer` subagent |
+| Pattern unclear | Asks before proceeding |
+| Validation fails | Fixes errors, re-validates |
+| No i18n + user wants migrate | Suggests setup first |
+| Translation files missing | Asks for storage method |
 
-## Confidence Levels
+## Confidence levels
 
 Every detection reports confidence:
+- **High** — imports + config + multiple examples found
+- **Medium** — one signal or inferred from code
+- **Low** — pattern guessed, needs confirmation
 
-- **High** — found imports + config + multiple examples
-- **Medium** — found one signal or inferred from code
-- **Low** — guessed from patterns, needs confirmation
+Low confidence → asks before proceeding. No bluffing.
 
-If any detection is Low confidence, the skill asks before proceeding.
+## Portability
+
+Built on the [Agent Skills](https://agentskills.io) open standard. Works with:
+- Claude Code
+- opencode
+- Codex CLI
+- Cursor
+- Gemini CLI
+- Copilot
+
+No tool-specific dependencies. The validation script is plain Node.js.
 
 ## Troubleshooting
 
-### "No translation files found"
+**"No translation files found"** — Tell the skill where they are: *"Translation files are in src/i18n/locales/"*
 
-The skill looked in `locales/`, `messages/`, `i18n/`, `lang/`, `translations/`, `public/`. If your files are elsewhere, tell the skill:
+**"Cannot detect i18n library"** — Run `/i18n-analyzer` or tell the skill: *"We use react-i18next with JSON files in locales/"*
 
-```
-Translation files are in src/i18n/locales/
-```
+**Validation fails** — The skill auto-fixes missing keys. If it can't, it reports exactly which keys are missing in which files.
 
-### "Cannot detect i18n library"
-
-Run the analyzer manually:
-
-```bash
-/i18n-analyzer
-```
-
-Or tell the skill directly:
-
-```
-We use react-i18next with JSON files in locales/
-```
-
-### Validation fails with "Missing keys"
-
-The skill will automatically fix missing keys in translation files. If it can't, it will report which keys are missing and in which files.
-
-### Large files (20+ strings)
-
-The skill will propose batching by logical section (header, form, footer) and ask for scope confirmation before proceeding.
+**Large files (20+ strings)** — Proposes batching by section, asks for scope confirmation.
 
 ## Contributing
 
-Contributions welcome! Areas where help is needed:
-
-- Additional library examples (Solid, Qwik, etc.)
-- More validation rules
-- Translations of this README
-- Feedback from real-world usage
-
-### How to Contribute
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Fork → branch → change → PR. Areas that need help:
+- More library examples (Solid, Qwik, Astro)
+- Additional validation rules
+- README translations
+- Real-world usage feedback
 
 ## License
 

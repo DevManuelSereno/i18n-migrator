@@ -1,10 +1,11 @@
 ---
 name: polyglot
 description: >
-  Internationalize your app. Creates i18n from scratch OR migrates hardcoded strings
-  to translation calls. Use when setting up i18n for the first time, or when migrating
-  existing strings across next-intl, react-i18next, vue-i18n, react-intl, i18next,
-  angular, svelte, or lingui.
+  One skill for the entire i18n journey. Sets up i18n from scratch OR migrates
+  hardcoded strings to translation calls with minimal diffs. Use when creating
+  i18n for the first time, or migrating strings across next-intl, react-i18next,
+  vue-i18n, react-intl, i18next, angular, svelte, or lingui. Does NOT translate
+  content, refactor existing i18n, or change component architecture.
 when_to_use: >
   "add i18n", "setup i18n", "internationalize", "localize", "migrate strings",
   "hardcoded text", "translate", "i18n this component", "add translation keys",
@@ -26,19 +27,18 @@ paths:
   - "**/messages/**"
   - "**/i18n/**"
 hooks:
-  PostToolUse:
-    - matcher: "Edit|Write|MultiEdit"
-      hooks:
+  Stop:
+    - hooks:
         - type: command
           command: "node ${CLAUDE_SKILL_DIR}/scripts/validate-keys.js"
 ---
 
 # Polyglot
 
-Internationalize your app. Two modes:
+One skill for the entire i18n journey.
 
-- **Setup** — create i18n from scratch when your project has no i18n yet
-- **Migrate** — surgically migrate hardcoded strings when i18n already exists
+- **Setup** — create i18n from scratch when your project has none
+- **Migrate** — surgically migrate hardcoded strings when i18n exists
 
 ## Project Context
 
@@ -49,29 +49,29 @@ grep -rE "useTranslation|useTranslations|useIntl|\$t\(|formatMessage" \
   --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" \
   --include="*.vue" --include="*.svelte" -l 2>/dev/null | head -3 || echo "  Not found"
 echo "Files:"
-find locales messages i18n -name "*.json" -o -name "*.yaml" 2>/dev/null | head -5 || echo "  Not found"
+ls locales/*.json messages/*.json i18n/*.json 2>/dev/null | head -5 || echo "  Not found"
 ```
 
 ## Arguments
 
-- **$mode**: `setup` (create from scratch) or `migrate` (migrate existing strings). If omitted, auto-detect.
-- **$target**: File(s) to migrate (only for migrate mode)
+- **$mode**: `setup` (create from scratch) or `migrate` (migrate strings). Auto-detected if omitted.
+- **$target**: File(s) to migrate (migrate mode only)
 
-## Routing Logic
+## Routing
 
-1. Run discovery → see [discovery.md](discovery.md)
-2. If i18n detected → **Migrate mode**
-3. If no i18n detected → **Setup mode**
-4. If user explicitly passed mode → follow it
+1. Run discovery → [discovery.md](discovery.md)
+2. i18n detected → **Migrate**
+3. No i18n → **Setup**
+4. User passed explicit mode → follow it
 
 ## Scope Rules
 
-### Setup Mode
+### Setup
 - Create i18n architecture (providers, config, translation files)
 - Follow framework conventions
 - Minimal scaffolding — no over-engineering
 
-### Migrate Mode
+### Migrate
 - Do not modify files outside scope
 - Do not create new architecture
 - Do not refactor or modernize
@@ -82,59 +82,44 @@ find locales messages i18n -name "*.json" -o -name "*.yaml" 2>/dev/null | head -
 
 ### Phase 1: Discover
 
-Detect stack → see [discovery.md](discovery.md)
-
-If detection fails or confidence is Low, invoke `/i18n-analyzer` automatically.
+Detect stack → [discovery.md](discovery.md). Low confidence → invoke `/i18n-analyzer`.
 
 ### Phase 2: Route
 
-Based on detection:
-- **Has i18n?** → Go to Migrate workflow
-- **No i18n?** → Go to Setup workflow
+- **Has i18n?** → Migrate
+- **No i18n?** → Setup
 
-### Phase 3A: Setup (if no i18n exists)
+### Phase 3A: Setup
 
 Follow [setup.md](setup.md):
 1. Recommend library based on framework
 2. Install dependencies
-3. Create config files
-4. Create translation file structure
-5. Add provider/wrapper to app root
-6. Create example translations
+3. Create config + translation files
+4. Add provider to app root
+5. Create example component
 
-### Phase 3B: Migrate (if i18n exists)
+### Phase 3B: Migrate
 
-Read reference (if provided) + target + translation files.
+Read reference + target + translation files. Extract: hook pattern, key convention, reusable keys.
 
-Extract: hook pattern, key convention, existing keys, reusable keys.
+### Phase 4: Identify (Migrate)
 
-### Phase 4: Identify (Migrate only)
-
-Find hardcoded strings: labels, placeholders, errors, aria-labels, tooltips, buttons.
-
+Find: labels, placeholders, errors, aria-labels, tooltips, buttons.
 Exclude: constants, logs, identifiers, CSS, data attributes.
 
-### Phase 5: Apply Patterns (Migrate only)
+### Phase 5: Apply Patterns (Migrate)
 
-Follow [patterns.md](patterns.md):
-- Interpolation (never concatenate)
-- Pluralization (delegate to library)
-- Formatting (use library utilities)
-- Rich text (use Trans or equivalent)
-
-Make smallest change: replace strings, add hook/import if absent, preserve formatting.
+Follow [patterns.md](patterns.md): interpolation, pluralization, formatting, rich text.
+Smallest change only: replace strings, add hook/import if absent.
 
 ### Phase 6: Update Translations
 
 - **Local**: Update files directly
-- **Remote**: Output keys for user to add
+- **Remote**: Output keys for user
 
 ### Phase 7: Validate
 
-Validation runs automatically via hook. If it fails:
-1. Report errors to user
-2. Fix any missing keys in translation files
-3. Re-run validation before completing
+Auto-runs via Stop hook. Fix errors → re-validate.
 
 ### Phase 8: Respond
 
@@ -146,33 +131,28 @@ Files changed:
 
 Changes:
 - [setup] created i18n config with [library]
-- [migrate] migrated N strings to t() calls
-- reused: [key.one, key.two]
-- added: [key.three]
-- namespace: <ns>
+- [migrate] migrated N strings
+- reused: [key.one]
+- added: [key.two]
 
-New keys (if remote):
-  key.three: "Text" (en)
-  key.three: "Texto" (pt-br)
-
-Validation: ✓ passed / ✗ failed (errors fixed)
+Validation: ✓ passed
 
 Notes:
 - <decisions only>
 ```
 
-## Key Strategy (Migrate mode)
+## Key Strategy (Migrate)
 
 1. Check reference for equivalent keys
 2. Check target (may be partially migrated)
 3. Reuse when semantically equivalent
 
-**Good**: `profile.header.title`, `profile:header.title`, `profile_header_title`
+**Good**: `profile.header.title`, `profile:header.title`
 **Bad**: `title`, `headerText`, `page.content.section.label.text`
 
 ## Large Files (20+ strings)
 
-Propose batching by section. Ask for scope. Process one batch at a time.
+Batch by section. Ask scope. One batch at a time.
 
 ## Error Handling
 
@@ -180,13 +160,12 @@ Propose batching by section. Ask for scope. Process one batch at a time.
 |----------|--------|
 | Detection fails | Auto-invoke `/i18n-analyzer` |
 | Pattern unclear | Ask before proceeding |
-| Validation fails | Fix errors, re-validate |
-| Reference not provided | Detect from project files |
-| Translation files missing | Ask user for storage method |
+| Validation fails | Fix, re-validate |
+| No i18n + user wants migrate | Suggest setup first |
 
 ## Resources
 
-- [discovery.md](discovery.md) — Stack detection with confidence levels
-- [setup.md](setup.md) — Scaffolding for each library
-- [patterns.md](patterns.md) — Interpolation, pluralization, formatting
-- [examples.md](examples.md) — Quick reference patterns
+- [discovery.md](discovery.md) — Detection + routing
+- [setup.md](setup.md) — Scaffolding per library
+- [patterns.md](patterns.md) — Interpolation, pluralization, Bom/Ruim
+- [examples.md](examples.md) — Before/after for every library

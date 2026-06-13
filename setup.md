@@ -2,22 +2,28 @@
 
 When a project has no i18n, follow this guide to create it from scratch.
 
+## Philosophy
+
+**Opinionated defaults beat endless configuration.** We recommend one library per framework based on ecosystem maturity, DX, and maintenance status. If the user has a strong preference, respect it — but lead with a clear recommendation.
+
 ## Step 1: Recommend Library
 
 Based on the project's framework, recommend the best library:
 
 | Framework | Recommended Library | Why |
 |-----------|---------------------|-----|
-| Next.js (App Router) | next-intl | Native integration, file-based routing |
+| Next.js (App Router) | next-intl | Native integration, file-based routing, RSC support |
 | Next.js (Pages Router) | react-i18next | Flexible, works with any setup |
-| React (Vite/CRA) | react-i18next | Most popular, great ecosystem |
-| Vue 3 | vue-i18n | Official Vue i18n solution |
+| React (Vite/CRA) | react-i18next | Most popular, great ecosystem, TypeScript-first |
+| Vue 3 | vue-i18n | Official Vue i18n solution, maintained by Vue team |
 | Vue 2 | vue-i18n | Official Vue i18n solution |
-| Angular | @angular/localize | Official Angular solution |
-| Svelte/SvelteKit | svelte-i18n | Native Svelte integration |
-| Any (universal) | i18next | Framework-agnostic, powerful |
+| Angular | @angular/localize | Official Angular solution, built-in extraction |
+| Svelte/SvelteKit | svelte-i18n | Native Svelte integration, reactive stores |
+| Any (universal) | i18next | Framework-agnostic, powerful plugin system |
 
-Ask the user to confirm the library before proceeding.
+**Decision rule**: If the framework has an official i18n solution, use it. Otherwise, use react-i18next (React) or i18next (universal).
+
+Ask the user to confirm before proceeding. If they disagree, respect their choice.
 
 ## Step 2: Install Dependencies
 
@@ -42,6 +48,8 @@ npm install svelte-i18n
 # i18next (universal)
 npm install i18next
 ```
+
+**Rule**: Use the project's existing package manager (npm, yarn, pnpm, bun). Detect from lockfile.
 
 ## Step 3: Create Config File
 
@@ -118,7 +126,7 @@ Create the directory structure and initial files:
 ```
 locales/
 ├── en.json
-── pt.json
+└── pt.json
 ```
 
 ### en.json
@@ -150,6 +158,8 @@ locales/
   }
 }
 ```
+
+**Rule**: Start with a `common` namespace for shared UI strings. Add feature-specific namespaces as the app grows.
 
 ## Step 5: Add Provider to App Root
 
@@ -259,30 +269,20 @@ export default function Example() {
 <button>{$_('common.save')}</button>
 ```
 
-## Step 7: Add to .gitignore (if needed)
+## Step 7: Next Steps
 
-If using a translation management service, add:
+After setup, guide the user:
 
-```gitignore
-# Translation files (if managed externally)
-# locales/*.json
-!locales/en.json
-```
-
-## Step 8: Next Steps
-
-After setup, the user can:
-
-1. Run `/polyglot migrate src/components/Settings.tsx` to migrate strings
-2. Add more translation keys as needed
-3. Consider a translation management service (Lokalise, Crowdin, etc.)
+1. **Migrate strings**: Run `/polyglot migrate src/components/Settings.tsx` to start migrating
+2. **Add locales**: Copy `en.json` to new locale files and translate
+3. **Consider TMS**: For 3+ locales, consider Lokalise, Crowdin, or Phrase
 
 ## Validation
 
-After setup, run:
+After setup, validate:
 
 ```bash
 node ${CLAUDE_SKILL_DIR}/scripts/validate-keys.js locales
 ```
 
-This ensures the translation files are valid and consistent.
+This ensures translation files are valid and consistent across locales.

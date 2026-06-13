@@ -15,6 +15,10 @@ When a hardcoded string contains dynamic values, never concatenate — use the i
 - If interpolation is used in the reference module, replicate the same variable naming style.
 - Watch for implicit concatenation in JSX: `<p>Hello, {user.name}</p>` is interpolation, not two strings.
 
+**Bom/Ruim:**
+- **Ruim**: `t('hello') + ' ' + user.name + ' ' + t('welcome')` — translator can't reorder words
+- **Bom**: `t('greeting', { name: user.name })` — translator controls full sentence structure
+
 ## Pluralization
 
 When a string changes based on a count, use the pluralization mechanism detected in the project.
@@ -25,9 +29,13 @@ When a string changes based on a count, use the pluralization mechanism detected
 - **Object form** (i18next): `{ "items_one": "{{count}} item", "items_other": "{{count}} items" }`
 
 **Rules:**
-- Never use `count === 1 ? t('singular') : t('plural')` in code — this breaks for languages with complex plural rules.
+- Never use `count === 1 ? t('singular') : t('plural')` in code — this breaks for languages with complex plural rules (Arabic has 6 forms, Polish has 3, Russian has 3).
 - Always delegate plural logic to the i18n library.
 - If the reference module has pluralized keys, replicate the exact same pattern.
+
+**Bom/Ruim:**
+- **Ruim**: `count === 1 ? t('item.one') : t('item.other')` — fails for Arabic, Polish, Russian
+- **Bom**: `t('items', { count })` — library handles all locale-specific plural rules
 
 ## Formatting (Dates, Numbers, Currencies)
 
@@ -43,6 +51,10 @@ When a hardcoded string contains formatted values, use the formatting mechanism 
 - Do not format dates/numbers inline with `toLocaleDateString()` if the project has a formatting utility.
 - Follow the existing formatting pattern from the reference module exactly.
 
+**Bom/Ruim:**
+- **Ruim**: `new Date().toLocaleDateString('en-US')` — hardcoded locale, ignores user preference
+- **Bom**: `formatter.dateTime(date)` — uses user's locale automatically
+
 ## Rich Text and Inline Components
 
 When a translated string contains markup, links, or inline components, use the mechanism detected in the project.
@@ -56,6 +68,10 @@ When a translated string contains markup, links, or inline components, use the m
 - Never hardcode markup inside a translation key unless the project already does this.
 - If the reference module uses `<Trans>` or equivalent, replicate the exact pattern.
 - Do not split a rich text sentence into multiple keys.
+
+**Bom/Ruim:**
+- **Ruim**: `<p>{t('click')} <a>{t('here')}</a> {t('forHelp')}</p>` — sentence split, translator loses context
+- **Bom**: `t('helpLink', { link: (chunks) => <a>{chunks}</a> })` — translator sees full sentence
 
 ## JSX Contexts
 
