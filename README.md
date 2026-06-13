@@ -54,8 +54,6 @@ git clone https://github.com/DevManuelSereno/Polyglot.git
 cp -r Polyglot ~/.claude/skills/polyglot
 ```
 
-> **Note:** The repository was originally named `i18n-migrator` but was renamed to `polyglot` to reflect the skill's broader scope (create, migrate, refactor).
-
 Works with Claude Code, opencode, and any Agent Skills-compatible tool. Optimized for Claude, GPT-4, Kimi, Qwen, Llama, and other major LLMs.
 
 ## Use
@@ -249,3 +247,11 @@ Fork → branch → change → PR. Areas that need help:
 ## License
 
 MIT
+
+## Author
+
+Built by [Manuel Sereno](https://manuelsereno.vercel.app)
+
+- **Website**: [manuelsereno.vercel.app](https://manuelsereno.vercel.app)
+- **GitHub**: [DevManuelSereno](https://github.com/DevManuelSereno)
+- **Buy me a coffee**: [buymeacoffee.com/nelsereno](https://buymeacoffee.com/nelsereno)
