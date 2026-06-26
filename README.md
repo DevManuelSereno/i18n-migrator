@@ -275,7 +275,7 @@ This skill is designed to work effectively across different LLM architectures:
 - Detailed impact analysis for refactor mode
 
 **Efficient Models** (Qwen, Llama, Mistral):
-- Concise SKILL.md (286 lines) for minimal context usage
+- Concise SKILL.md (287 lines) for minimal context usage
 - Clear phase-based workflow for step-by-step execution
 - Structured output format for consistent responses
 
